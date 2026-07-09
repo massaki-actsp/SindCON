@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Relatorios - SindCON{% endblock %}
+{% block heading %}Relatorios por periodo{% endblock %}
+
+{% block content %}
+<form class="panel filter-bar" method="post">
+  <label>Inicio <input type="date" name="start_date" value="{{ start.isoformat() }}"></label>
+  <label>Fim <input type="date" name="end_date" value="{{ end.isoformat() }}"></label>
+  <button type="submit">Gerar relatorio</button>
+  <button type="button" onclick="window.print()">Imprimir</button>
+</form>
+
+<section class="stats-grid">
+  <article class="stat"><span>{{ totals.logs }}</span><p>Registros diarios</p></article>
+  <article class="stat"><span>{{ totals.maintenance }}</span><p>Manutencoes</p></article>
+  <article class="stat"><span>{{ totals.occurrences }}</span><p>Ocorrencias</p></article>
+  <article class="stat"><span>{{ totals.purchases }}</span><p>Compras</p></article>
+</section>
+
+<section class="panel report">
+  <h2>Resumo executivo</h2>
+  <p>No periodo de {{ start.strftime("%d/%m/%Y") }} a {{ end.strftime("%d/%m/%Y") }}, o condominio registrou {{ totals.logs }} atividades no diario, {{ totals.maintenance }} manutencoes, {{ totals.occurrences }} ocorrencias e {{ totals.purchases }} solicitacoes de compra.</p>
+
+  <h2>Diario de bordo</h2>
+  {% for item in data.logs %}
+    <article><strong>ID {{ item.id }} - {{ item.entry_date.strftime("%d/%m") }} - {{ item.title }}</strong><p>{{ item.description }}</p></article>
+  {% else %}<p class="empty">Sem registros no periodo.</p>{% endfor %}
+
+  <h2>Manutencoes</h2>
+  {% for item in data.maintenance %}
+    <article><strong>ID {{ item.id }} - {{ item.code }} - {{ item.title }}</strong><p>{{ item.status }} - {{ item.description }}</p></article>
+  {% else %}<p class="empty">Sem manutencoes no periodo.</p>{% endfor %}
+
+  <h2>Ocorrencias</h2>
+  {% for item in data.occurrences %}
+    <article><strong>ID {{ item.id }} - {{ item.code }} - {{ item.category }}</strong><p>{{ item.status }} - {{ item.description }}</p></article>
+  {% else %}<p class="empty">Sem ocorrencias no periodo.</p>{% endfor %}
+
+  <h2>Compras</h2>
+  {% for item in data.purchases %}
+    <article><strong>ID {{ item.id }} - {{ item.material }}</strong><p>{{ item.status }} - {{ item.purpose }}</p></article>
+  {% else %}<p class="empty">Sem compras no periodo.</p>{% endfor %}
+</section>
+{% endblock %}

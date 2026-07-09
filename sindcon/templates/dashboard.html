@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SindCON{% endblock %}
+{% block heading %}Dashboard operacional{% endblock %}
+
+{% block content %}
+<section class="stats-grid">
+  <article class="stat"><span>{{ stats.logs_today }}</span><p>Registros hoje</p></article>
+  <article class="stat"><span>{{ stats.open_occurrences }}</span><p>Ocorrencias abertas</p></article>
+  <article class="stat"><span>{{ stats.pending_maintenance }}</span><p>Manutencoes pendentes</p></article>
+  <article class="stat"><span>{{ stats.pending_purchases }}</span><p>Compras pendentes</p></article>
+</section>
+
+<section class="two-columns">
+  <div class="panel">
+    <div class="section-title">
+      <h2>Agenda de manutencoes</h2>
+      <a href="{{ url_for('main.maintenance') }}">Nova manutencao</a>
+    </div>
+    <div class="list">
+      {% for item in agenda %}
+        <article class="list-row">
+          <div>
+            <strong>ID {{ item.id }} - {{ item.title }}</strong>
+            <p>{{ item.location or "Local nao informado" }} - {{ item.priority }}</p>
+          </div>
+          <span class="pill">{{ item.start_date.strftime("%d/%m") }}</span>
+        </article>
+      {% else %}
+        <p class="empty">Nenhuma manutencao agendada.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">
+      <h2>Ocorrencias recentes</h2>
+      <a href="{{ url_for('main.occurrences') }}">Registrar</a>
+    </div>
+    <div class="list">
+      {% for item in occurrences %}
+        <article class="list-row">
+          <div>
+            <strong>ID {{ item.id }} - {{ item.code }} - {{ item.category }}</strong>
+            <p>{{ item.description }}</p>
+          </div>
+          <span class="status">{{ item.status }}</span>
+        </article>
+      {% else %}
+        <p class="empty">Nenhuma ocorrencia registrada.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="section-title">
+    <h2>Ultimos registros do diario</h2>
+    <a href="{{ url_for('main.diary') }}">Novo registro</a>
+  </div>
+  <div class="timeline">
+    {% for entry in latest_logs %}
+      <article>
+        <time>ID {{ entry.id }} - {{ entry.entry_date.strftime("%d/%m/%Y") }} {{ entry.entry_time.strftime("%H:%M") }}</time>
+        <h3>{{ entry.title }}</h3>
+        <p>{{ entry.description }}</p>
+        <span>{{ entry.category }} - {{ entry.responsible }}</span>
+      </article>
+    {% else %}
+      <p class="empty">O diario ainda nao possui registros.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

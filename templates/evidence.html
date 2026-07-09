@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Evidencias - SindCON{% endblock %}
+{% block heading %}Banco de evidencias{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <table>
+    <thead>
+      <tr><th>Origem</th><th>ID</th><th>Data</th><th>Registro</th><th>Evidencia</th></tr>
+    </thead>
+    <tbody>
+      {% for origin, item_id, item_date, title, evidence in records %}
+        <tr>
+          <td>{{ origin }}</td>
+          <td>{{ item_id }}</td>
+          <td>{{ item_date.strftime("%d/%m/%Y") }}</td>
+          <td>{{ title }}</td>
+          <td>{{ evidence }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5">Nenhuma evidencia registrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

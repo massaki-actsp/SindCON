@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Diario de bordo - SindCON{% endblock %}
+{% block heading %}Diario de bordo{% endblock %}
+
+{% block content %}
+<section class="split">
+  <form class="panel form-grid" method="post" action="{{ action_url }}">
+    <h2>{% if entry %}Editar registro ID {{ entry.id }}{% else %}Novo registro diario{% endif %}</h2>
+    <label>Data <input type="date" name="entry_date" value="{{ (entry.entry_date if entry else today).isoformat() }}" required></label>
+    <label>Hora <input type="time" name="entry_time" value="{{ entry.entry_time.strftime('%H:%M') if entry else '' }}" required></label>
+    <label>Categoria <input name="category" value="{{ entry.category if entry else '' }}" placeholder="Limpeza, seguranca, administrativo" required></label>
+    <label>Responsavel <input name="responsible" value="{{ entry.responsible if entry else '' }}" required></label>
+    <label class="wide">Titulo <input name="title" value="{{ entry.title if entry else '' }}" required></label>
+    <label class="wide">Local <input name="location" value="{{ entry.location if entry else '' }}" placeholder="Bloco, torre ou area comum"></label>
+    <label class="wide">Observacoes <textarea name="description" rows="5" required>{{ entry.description if entry else '' }}</textarea></label>
+    <label class="wide">Evidencia <input name="evidence" value="{{ entry.evidence if entry else '' }}" placeholder="Nome do arquivo, link ou referencia"></label>
+    <button type="submit">{% if entry %}Atualizar registro{% else %}Salvar registro{% endif %}</button>
+    {% if entry %}<a class="button secondary" href="{{ url_for('main.diary') }}">Cancelar edicao</a>{% endif %}
+  </form>
+
+  <div class="panel">
+    <div class="section-title">
+      <h2>Historico</h2>
+      <form class="search-form" method="get">
+        <input name="q" value="{{ q }}" placeholder="Filtrar por ID, titulo, categoria">
+        <button type="submit">Filtrar</button>
+      </form>
+    </div>
+    <div class="timeline">
+      {% for row in entries %}
+        <article>
+          <time>ID {{ row.id }} - {{ row.entry_date.strftime("%d/%m/%Y") }} {{ row.entry_time.strftime("%H:%M") }}</time>
+          <h3>{{ row.title }}</h3>
+          <p>{{ row.description }}</p>
+          <span>{{ row.category }} - {{ row.responsible }}{% if row.location %} - {{ row.location }}{% endif %}</span>
+          <div class="actions">
+            <a class="button small" href="{{ url_for('main.diary_edit', item_id=row.id) }}">Editar</a>
+            <form method="post" action="{{ url_for('main.diary_delete', item_id=row.id) }}" data-confirm="Excluir o registro ID {{ row.id }}?">
+              <button class="danger small" type="submit">Excluir</button>
+            </form>
+          </div>
+        </article>
+      {% else %}
+        <p class="empty">Nenhum registro encontrado.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

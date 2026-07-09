@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Agenda - SindCON{% endblock %}
+{% block heading %}Agenda operacional{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="calendar">
+    {% for item in items %}
+      <article class="calendar-item">
+        <time>
+          <span>{{ item.start_date.strftime("%d") }}</span>
+          {{ item.start_date.strftime("%m/%Y") }}
+        </time>
+        <div>
+          <h2>ID {{ item.id }} - {{ item.title }}</h2>
+          <p>{{ item.description }}</p>
+          <span>{{ item.category }} · {{ item.status }} · {{ item.location or "Local nao informado" }}</span>
+        </div>
+      </article>
+    {% else %}
+      <p class="empty">Agenda vazia.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

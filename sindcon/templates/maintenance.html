@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Manutencoes - SindCON{% endblock %}
+{% block heading %}Manutencoes{% endblock %}
+
+{% block content %}
+<section class="split">
+  <form class="panel form-grid" method="post" action="{{ action_url }}">
+    <h2>{% if item %}Editar manutencao ID {{ item.id }}{% else %}Cadastrar manutencao{% endif %}</h2>
+    <label>Numero <input name="code" value="{{ item.code if item else next_code }}" required></label>
+    <label>Status
+      <select name="status">
+        {% for status in ["Agendada", "Em execucao", "Concluida", "Cancelada"] %}
+          <option {% if item and item.status == status %}selected{% endif %}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="wide">Titulo <input name="title" value="{{ item.title if item else '' }}" required></label>
+    <label>Categoria <input name="category" value="{{ item.category if item else '' }}" required></label>
+    <label>Prioridade
+      <select name="priority">
+        {% for priority in ["Baixa", "Media", "Alta", "Critica"] %}
+          <option {% if (item and item.priority == priority) or (not item and priority == "Media") %}selected{% endif %}>{{ priority }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Data inicio <input type="date" name="start_date" value="{{ (item.start_date if item else today).isoformat() }}" required></label>
+    <label>Hora inicio <input type="time" name="start_time" value="{{ item.start_time.strftime('%H:%M') if item and item.start_time else '' }}"></label>
+    <label>Data conclusao <input type="date" name="end_date" value="{{ item.end_date.isoformat() if item and item.end_date else '' }}"></label>
+    <label>Hora conclusao <input type="time" name="end_time" value="{{ item.end_time.strftime('%H:%M') if item and item.end_time else '' }}"></label>
+    <label>Responsavel <input name="responsible" value="{{ item.responsible if item else '' }}"></label>
+    <label>Prestadora <input name="provider" value="{{ item.provider if item else '' }}"></label>
+    <label>Valor <input name="amount" value="{{ item.amount if item and item.amount else '' }}" placeholder="0,00"></label>
+    <label>Local <input name="location" value="{{ item.location if item else '' }}"></label>
+    <label class="wide">Descricao <textarea name="description" rows="4" required>{{ item.description if item else '' }}</textarea></label>
+    <label class="wide">Anexos <input name="attachments" value="{{ item.attachments if item else '' }}" placeholder="Fotos, PDF, nota fiscal"></label>
+    <button type="submit">{% if item %}Atualizar manutencao{% else %}Salvar manutencao{% endif %}</button>
+    {% if item %}<a class="button secondary" href="{{ url_for('main.maintenance') }}">Cancelar edicao</a>{% endif %}
+  </form>
+
+  <div class="panel">
+    <div class="section-title">
+      <h2>Manutencoes cadastradas</h2>
+      <form class="search-form" method="get">
+        <input name="q" value="{{ q }}" placeholder="Filtrar por ID, numero, status">
+        <button type="submit">Filtrar</button>
+      </form>
+    </div>
+    <div class="list">
+      {% for row in items %}
+        <article class="list-row">
+          <div>
+            <strong>ID {{ row.id }} - {{ row.code }} - {{ row.title }}</strong>
+            <p>{{ row.start_date.strftime("%d/%m/%Y") }} - {{ row.category }} - {{ row.location or "Local pendente" }}</p>
+          </div>
+          <div class="row-side">
+            <span class="status">{{ row.status }}</span>
+            <div class="actions">
+              <a class="button small" href="{{ url_for('main.maintenance_edit', item_id=row.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('main.maintenance_delete', item_id=row.id) }}" data-confirm="Excluir a manutencao ID {{ row.id }}?">
+                <button class="danger small" type="submit">Excluir</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <p class="empty">Nenhuma manutencao cadastrada.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

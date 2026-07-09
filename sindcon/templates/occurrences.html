@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Ocorrencias - SindCON{% endblock %}
+{% block heading %}Ocorrencias{% endblock %}
+
+{% block content %}
+<section class="split">
+  <form class="panel form-grid" method="post" action="{{ action_url }}">
+    <h2>{% if item %}Editar ocorrencia ID {{ item.id }}{% else %}Registrar ocorrencia{% endif %}</h2>
+    <label>Numero <input name="code" value="{{ item.code if item else next_code }}" required></label>
+    <label>Status
+      <select name="status">
+        {% for status in ["Aberta", "Em analise", "Resolvida", "Arquivada"] %}
+          <option {% if item and item.status == status %}selected{% endif %}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Categoria <input name="category" value="{{ item.category if item else '' }}" required></label>
+    <label>Data <input type="date" name="occurred_date" value="{{ item.occurred_at.date().isoformat() if item else today.isoformat() }}" required></label>
+    <label>Hora <input type="time" name="occurred_time" value="{{ item.occurred_at.time().strftime('%H:%M') if item else '' }}" required></label>
+    <label>Apartamento <input name="apartment" value="{{ item.apartment if item else '' }}"></label>
+    <label>Bloco <input name="block" value="{{ item.block if item else '' }}"></label>
+    <label>Morador envolvido <input name="resident" value="{{ item.resident if item else '' }}"></label>
+    <label class="wide">Descricao <textarea name="description" rows="4" required>{{ item.description if item else '' }}</textarea></label>
+    <label class="wide">Testemunhas <textarea name="witnesses" rows="2">{{ item.witnesses if item else '' }}</textarea></label>
+    <label class="check"><input type="checkbox" name="affects_residents" {% if item and item.affects_residents %}checked{% endif %}> Influencia moradores</label>
+    <label class="check"><input type="checkbox" name="requires_fine" {% if item and item.requires_fine %}checked{% endif %}> Necessita multa</label>
+    <label class="wide">Evidencias <input name="evidence" value="{{ item.evidence if item else '' }}" placeholder="Fotos, videos ou documentos"></label>
+    <button type="submit">{% if item %}Atualizar ocorrencia{% else %}Salvar ocorrencia{% endif %}</button>
+    {% if item %}<a class="button secondary" href="{{ url_for('main.occurrences') }}">Cancelar edicao</a>{% endif %}
+  </form>
+
+  <div class="panel">
+    <div class="section-title">
+      <h2>Ocorrencias cadastradas</h2>
+      <form class="search-form" method="get">
+        <input name="q" value="{{ q }}" placeholder="Filtrar por ID, numero, categoria">
+        <button type="submit">Filtrar</button>
+      </form>
+    </div>
+    <div class="list">
+      {% for row in items %}
+        <article class="list-row">
+          <div>
+            <strong>ID {{ row.id }} - {{ row.code }} - {{ row.category }}</strong>
+            <p>{{ row.description }}</p>
+          </div>
+          <div class="row-side">
+            <span class="status">{{ row.status }}</span>
+            <div class="actions">
+              <a class="button small" href="{{ url_for('main.occurrence_edit', item_id=row.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('main.occurrence_delete', item_id=row.id) }}" data-confirm="Excluir a ocorrencia ID {{ row.id }}?">
+                <button class="danger small" type="submit">Excluir</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <p class="empty">Nenhuma ocorrencia registrada.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
